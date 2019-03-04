@@ -2,6 +2,24 @@ import React, { Component } from 'react';
 import Slider from 'rc-slider/lib/Slider';
 import 'rc-slider/assets/index.css';
 import './App.css';
+import audio1 from './assets/Heater-1.mp3';
+import audio2 from './assets/Heater-2.mp3';
+import audio3 from './assets/Heater-3.mp3';
+import audio4 from './assets/Heater-4_1.mp3';
+import audio5 from './assets/Heater-6.mp3';
+import audio6 from './assets/Dsc_Oh.mp3';
+import audio7 from './assets/Kick_n_Hat.mp3';
+import audio8 from './assets/RP4_KICK_1.mp3';
+import audio9 from './assets/Cev_H2.mp3';
+import audio10 from './assets/Chord_1.mp3';
+import audio11 from './assets/Chord_2.mp3';
+import audio12 from './assets/Chord_3.mp3';
+import audio13 from './assets/Give_us_a_light.mp3';
+import audio14 from './assets/Dry_Ohh.mp3';
+import audio15 from './assets/Bld_H1.mp3';
+import audio16 from './assets/punchy_kick_1.mp3';
+import audio17 from './assets/side_stick_1.mp3';
+import audio18 from './assets/Brk_Snr.mp3';
 
 class App extends Component {
   render() {
@@ -14,27 +32,26 @@ class App extends Component {
       machineId: "drum-machine",
       infoId: "display",
     };
-    const assetPath = './assets/';
     const banks = [[
-        `${assetPath}Heater-1.mp3`,
-        `${assetPath}Heater-2.mp3`,
-        `${assetPath}Heater-3.mp3`,
-        `${assetPath}Heater-4_1.mp3`,
-        `${assetPath}Heater-6.mp3`,
-        `${assetPath}Dsc_Oh.mp3`,
-        `${assetPath}Kick_n_Hat.mp3`,
-        `${assetPath}RP4_KICK_1.mp3`,
-        `${assetPath}Cev_H2.mp3`,
+        audio1,
+        audio2,
+        audio3,
+        audio4,
+        audio5,
+        audio6,
+        audio7,
+        audio8,
+        audio9,
       ], [
-        `${assetPath}Chord_1.mp3`,
-        `${assetPath}Chord_2.mp3`,
-        `${assetPath}Chord_3.mp3`,
-        `${assetPath}Give_us_a_light.mp3`,
-        `${assetPath}Dry_Ohh.mp3`,
-        `${assetPath}Bld_H1.mp3`,
-        `${assetPath}punchy_kick_1.mp3`,
-        `${assetPath}side_stick_1.mp3`,
-        `${assetPath}Brk_Snr.mp3`,
+        audio10,
+        audio11,
+        audio12,
+        audio13,
+        audio14,
+        audio15,
+        audio16,
+        audio17,
+        audio18,
       ],
     ];
     return (
@@ -136,14 +153,34 @@ class DrumPadBoard extends Component {
 }
 
 class DrumPad extends Component {
+  constructor(props){
+    super(props);
+    this.audioRef = React.createRef();
+    this.playClip = this.playClip.bind(this);
+  }
+
+  async playClip(event){
+    
+    if (this.audioRef.current === null){
+      console.log("Ref is null");
+      return;
+    }
+
+    try {
+      await this.audioRef.current.play();
+    } catch(err) {
+      console.log(err);
+    }
+  }
+
   render() {
     return (
-      <button type="button" className="btn btn-secondary DrumPad drum-pad" id={this.props.text}>
+      <button type="button" className="btn btn-secondary DrumPad drum-pad" id={this.props.text} onClick={this.playClip}>
         <div className="DrumPadText d-flex flex-column justify-content-center">
           <div>
         {this.props.text}
           </div>
-          <audio className="clip" id={this.props.text} src={this.props.clip} type="audio/mp3" preload="metadata">
+          <audio className="clip" ref={this.audioRef} id={this.props.text} src={this.props.clip} type="audio/mpeg" preload="metadata">
             !
           </audio>
         </div>
