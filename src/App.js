@@ -26,7 +26,17 @@ class App extends Component {
     const setupBoard = {
       rows: 3,
       cols: 3,
-      keys: 'QWEASDZXC',
+      keys: [
+        { kbKey: 'Q', kbCode: 'KeyQ'},
+        { kbKey: 'W', kbCode: 'KeyW'},
+        { kbKey: 'E', kbCode: 'KeyE'},
+        { kbKey: 'A', kbCode: 'KeyA'},
+        { kbKey: 'S', kbCode: 'KeyS'},
+        { kbKey: 'D', kbCode: 'KeyD'},
+        { kbKey: 'Z', kbCode: 'KeyZ'},
+        { kbKey: 'X', kbCode: 'KeyX'},
+        { kbKey: 'C', kbCode: 'KeyC'},
+      ],
     };
     const ids = {
       machineId: "drum-machine",
@@ -93,8 +103,9 @@ class DrumMachine extends Component {
   }
 
   render() {
-    const flatBoard = [...this.props.board.keys].map((key, keyid) => ({
-      key: key, 
+    const flatBoard = this.props.board.keys.map((key, keyid) => ({
+      kbKey: key.kbKey,
+      kbCode: key.kbCode,
       clip: this.props.banks[this.state.bank][keyid],
     }));
     const board = flatBoard.reduce((rows, item, itemid) => {
@@ -128,13 +139,14 @@ class DrumMachine extends Component {
   }
 }
 
-// this.props.board - 2d array of objects {key, clip}
+
+// this.props.board - 2d array of objects {kbKey, kbCode, clip}
 class DrumPadBoard extends Component {
   render() {
     const board = this.props.board.map((row, rowid) => {
       const rowTiles = row.map((tile, colid) => (
         <div className="col" key={colid}>
-          <DrumPad text={tile.key} clip={tile.clip}/>
+          <DrumPad kbKey={tile.kbKey} kbCode={tile.kbCode} clip={tile.clip}/>
         </div>
       ));
 
@@ -157,12 +169,20 @@ class DrumPad extends Component {
     super(props);
     this.audioRef = React.createRef();
     this.playClip = this.playClip.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+  }
+
+  componentDidMount(){
+    document.addEventListener('keydown', this.handleKeyDown, false);
+  }
+
+  componentWillUnmount(){
+    document.removeEventListener('keydown', this.handleKeyDown, false);
   }
 
   async playClip(event){
     
     if (this.audioRef.current === null){
-      console.log("Ref is null");
       return;
     }
 
@@ -173,14 +193,31 @@ class DrumPad extends Component {
     }
   }
 
+  handleKeyDown(e){
+    if (e.isDefaultPrevented){
+      return;
+    }
+
+    // avoid messing with special keys
+    if (e.ctrlKey || e.altKey || e.metaKey || e.shiftKey){
+      return;
+    }
+
+    // handle keys
+    if (e.code === this.props.kbCode || e.key.toUpperCase() === this.props.kbKey){
+      this.playClip(e);
+      e.preventDefault();
+    }
+  }
+
   render() {
     return (
-      <button type="button" className="btn btn-secondary DrumPad drum-pad" id={this.props.text} onClick={this.playClip}>
+      <button type="button" className="btn btn-secondary DrumPad drum-pad" id={"clip-" + this.props.kbKey} onClick={this.playClip}>
         <div className="DrumPadText d-flex flex-column justify-content-center">
           <div>
-        {this.props.text}
+        {this.props.kbKey}
           </div>
-          <audio className="clip" ref={this.audioRef} id={this.props.text} src={this.props.clip} type="audio/mpeg" preload="metadata">
+          <audio className="clip" ref={this.audioRef} id={this.props.kbKey} src={this.props.clip} type="audio/mpeg" preload="metadata">
             !
           </audio>
         </div>
